@@ -4,87 +4,380 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cổng Đăng Ký Thành Viên - Pride Home</title>
-    <!-- Sử dụng Bootstrap cho giao diện chuyên nghiệp -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Google Fonts: Plus Jakarta Sans cho giao diện SaaS hiện đại, sáng sủa -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <!-- Cropper.js -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css" rel="stylesheet">
+    <!-- SweetAlert2 -->
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.1/dist/sweetalert2.min.css" rel="stylesheet">
+    
     <style>
-        body { background-color: #f4f6f9; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        .header { background-color: #0b5ed7; color: white; padding: 20px 0; text-align: center; margin-bottom: 30px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .form-container { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); max-width: 700px; margin: 0 auto 50px auto; }
-        .step-title { color: #0b5ed7; border-bottom: 2px solid #0b5ed7; padding-bottom: 10px; margin-bottom: 20px; font-weight: 600; }
-        .note-text { font-size: 0.85rem; color: #6c757d; }
-        .footer { text-align: center; padding: 20px; font-size: 0.9rem; color: #555; background: #e9ecef; margin-top: auto; }
-        #step2, #message-box { display: none; }
-        .avatar-preview { width: 150px; height: 150px; border-radius: 50%; object-fit: cover; border: 2px dashed #ccc; display: flex; align-items: center; justify-content: center; overflow: hidden; margin-top: 10px; }
-        .loader { display: none; border: 4px solid #f3f3f3; border-top: 4px solid #0b5ed7; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; margin: 0 auto; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        :root {
+            /* Tông màu sáng sủa, hiện đại */
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --secondary: #0ea5e9;
+            --bg-main: #f8fafc;
+            --bg-card: #ffffff;
+            --text-dark: #0f172a;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --input-bg: #f1f5f9;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
+            color: var(--text-dark);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            margin: 0;
+            padding: 40px 20px;
+        }
+
+        /* Hiệu ứng nền mờ trừu tượng */
+        body::before {
+            content: '';
+            position: fixed;
+            top: -10%; left: -10%;
+            width: 50vw; height: 50vw;
+            background: radial-gradient(circle, rgba(14, 165, 233, 0.1) 0%, transparent 70%);
+            z-index: -1;
+        }
+        body::after {
+            content: '';
+            position: fixed;
+            bottom: -10%; right: -10%;
+            width: 50vw; height: 50vw;
+            background: radial-gradient(circle, rgba(79, 70, 229, 0.08) 0%, transparent 70%);
+            z-index: -1;
+        }
+
+        /* ================= HIỆU ỨNG TẢI TRANG ================= */
+        #pageLoader {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: #ffffff; z-index: 99999; display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+        #pageLoader.hidden { opacity: 0; visibility: hidden; }
+        .spinner-modern {
+            width: 50px; height: 50px;
+            border: 4px solid var(--input-bg);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        /* ================= END HIỆU ỨNG TẢI TRANG ================= */
+
+        .main-wrapper {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Thẻ Form Chính */
+        .modern-card {
+            background: var(--bg-card);
+            width: 100%;
+            max-width: 800px;
+            border-radius: 24px;
+            box-shadow: 0 20px 40px -15px rgba(0,0,0,0.05), 0 0 0 1px rgba(0,0,0,0.02);
+            padding: 50px;
+            position: relative;
+        }
+
+        /* Header */
+        .header-section {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .header-logo {
+            width: 300px;
+            height: auto;
+            object-fit: cover;
+            margin: 0 auto 20px auto;
+            display: block;
+            border: 4px solid #ffffff;
+        }
+        .header-section h1 {
+            font-weight: 800;
+            font-size: 2rem;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+        .header-section p {
+            color: var(--text-muted);
+            font-weight: 500;
+            font-size: 1.05rem;
+        }
+
+        /* Stepper Hiện Đại (Thanh ngang) */
+        .stepper-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            margin-bottom: 40px;
+            padding: 0 40px;
+        }
+        .stepper-line {
+            position: absolute;
+            top: 50%;
+            left: 50px;
+            right: 50px;
+            height: 3px;
+            background: var(--border-color);
+            z-index: 1;
+            transform: translateY(-50%);
+        }
+        .step-node {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            background: var(--bg-card);
+            padding: 0 10px;
+        }
+        .step-circle {
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            background: var(--bg-card);
+            border: 3px solid var(--border-color);
+            color: var(--text-muted);
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 1.1rem;
+            transition: all 0.3s ease;
+        }
+        .step-label {
+            font-size: 0.9rem; font-weight: 600; color: var(--text-muted);
+            transition: all 0.3s ease;
+        }
+        .step-node.active .step-circle {
+            border-color: var(--primary);
+            background: var(--primary);
+            color: #ffffff;
+            box-shadow: 0 0 0 6px rgba(79, 70, 229, 0.1);
+        }
+        .step-node.active .step-label { color: var(--primary); }
+
+        /* Layout Form Chia cột (Bước 1) */
+        .step-content { display: none; }
+        .step-content.active { display: block; animation: slideUp 0.4s ease forwards; }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Avatar Upload */
+        .avatar-upload-box {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            padding: 30px; border: 2px dashed var(--border-color); border-radius: 16px;
+            background: var(--bg-main); transition: all 0.3s; cursor: pointer;
+            margin-bottom: 25px;
+        }
+        .avatar-upload-box:hover { border-color: var(--secondary); background: #f0f9ff; }
+        .avatar-preview-circle {
+            width: 100px; height: 100px; border-radius: 50%;
+            background: #ffffff; border: 1px solid var(--border-color);
+            display: flex; align-items: center; justify-content: center;
+            overflow: hidden; margin-bottom: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+        .avatar-preview-circle i { font-size: 2.5rem; color: var(--secondary); }
+        .avatar-preview-circle img { width: 100%; height: 100%; object-fit: cover; display: none; }
+        .avatar-instruction { font-weight: 600; color: var(--text-dark); margin-bottom: 5px; }
+        .avatar-note { font-size: 0.85rem; color: var(--text-muted); }
+
+        /* Inputs */
+        .form-label {
+            font-weight: 600; color: var(--text-dark); font-size: 0.95rem; margin-bottom: 8px;
+        }
+        .form-control, .form-select {
+            background: var(--input-bg);
+            border: 1px solid transparent;
+            border-radius: 12px;
+            padding: 14px 18px;
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--text-dark);
+            transition: all 0.3s;
+            box-shadow: none !important;
+        }
+        .form-control:focus, .form-select:focus {
+            background: #ffffff;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1) !important;
+        }
+
+        /* Cảnh báo Zalo */
+        .zalo-alert {
+            display: flex; align-items: flex-start; gap: 12px;
+            background: #eff6ff; border-left: 4px solid var(--secondary);
+            padding: 16px; border-radius: 0 12px 12px 0; margin-top: 15px;
+        }
+        .zalo-alert i { color: var(--secondary); font-size: 1.2rem; }
+        .zalo-alert p { margin: 0; font-size: 0.9rem; color: #1e3a8a; font-weight: 500; line-height: 1.5; }
+
+        /* Buttons */
+        .btn-modern {
+            background: var(--primary); color: #ffffff; border: none;
+            border-radius: 12px; padding: 16px 24px; font-weight: 700; font-size: 1.05rem;
+            width: 100%; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; gap: 10px;
+        }
+        .btn-modern:hover { background: var(--primary-hover); transform: translateY(-2px); box-shadow: 0 10px 20px rgba(79, 70, 229, 0.2); color: white; }
+        .btn-modern-light {
+            background: var(--bg-main); color: var(--text-dark); border: 1px solid var(--border-color);
+            border-radius: 12px; padding: 16px 24px; font-weight: 700; font-size: 1.05rem;
+            width: 100%; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; gap: 10px;
+        }
+        .btn-modern-light:hover { background: #e2e8f0; }
+
+        .link-later {
+            display: block; text-align: center; margin-top: 20px;
+            color: var(--text-muted); font-weight: 600; text-decoration: none; transition: color 0.2s;
+        }
+        .link-later:hover { color: var(--text-dark); text-decoration: underline; }
+
+        .grid-2-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+
+        /* Màn hình thông báo */
+        #message-box { display: none; text-align: center; padding: 40px 20px; }
+        .msg-icon {
+            width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 20px auto; font-size: 2.5rem;
+        }
+        .msg-icon.success { background: #dcfce7; color: #16a34a; }
+        .msg-icon.info { background: #eff6ff; color: var(--primary); }
+
+        .footer { text-align: center; padding: 30px; color: var(--text-muted); font-size: 0.95rem; font-weight: 500; }
+        .footer a { color: var(--primary); text-decoration: none; font-weight: 700; }
+
+        /* Loader khi Submit */
+        .submit-loader {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(5px);
+            z-index: 9999; display: none; flex-direction: column; align-items: center; justify-content: center;
+        }
+
+        @media (max-width: 768px) {
+            body { padding: 20px 10px; }
+            .modern-card { padding: 30px 20px; border-radius: 20px; }
+            .grid-2-cols { grid-template-columns: 1fr; gap: 15px; }
+            .stepper-container { padding: 0 10px; margin-bottom: 30px; }
+            .stepper-line { left: 30px; right: 30px; }
+        }
     </style>
 </head>
-<body class="d-flex flex-column min-vh-100">
+<body>
 
-    <div class="header">
-        <h2>HỆ THỐNG ĐĂNG KÝ THÀNH VIÊN</h2>
-        <p class="mb-0">Cộng đồng Pride Home Việt Nam</p>
+    <!-- Màn Hình Chờ Khởi Tạo -->
+    <div id="pageLoader">
+        <div class="spinner-modern"></div>
     </div>
 
-    <div class="container flex-grow-1">
-        <div class="form-container" id="main-form">
+    <!-- Màn Hình Chờ Gửi Dữ Liệu -->
+    <div id="submitLoader" class="submit-loader">
+        <div class="spinner-modern" style="margin-bottom: 20px;"></div>
+        <h4 class="fw-bold" style="color: var(--primary);">Đang xử lý hồ sơ...</h4>
+        <p class="text-muted">Vui lòng không tắt trình duyệt.</p>
+    </div>
+
+    <div class="main-wrapper">
+        <div class="modern-card" id="main-form">
+            
+            <div class="header-section">
+                <img src="https://blogger.googleusercontent.com/img/a/AVvXsEhlhldIZ1eKR82lmqJHT54y5L0Ls2AJpEC0-1_0Y3XF13Bpoe7XPoRZdKpAfrzsLdrt4ARq-rQFo1FTDDg048sAuiCkt4162lbZ_s2FzdwClx8SycQgNksikwwMP5DMI_m6jz37OsrwJR1zf7G2NTgF7D8UoS7UPNN6nFClUmMZti0MWwQX9UvjJVOeGN7q=s1600" alt="Pride Home" class="header-logo">
+                <h1>Cổng đăng ký thành viên</h1>
+                <p>Cộng đồng Pride Home Việt Nam</p>
+            </div>
+
+            <!-- Stepper -->
+            <div class="stepper-container">
+                <div class="stepper-line"></div>
+                <div class="step-node active" id="stepNode1">
+                    <div class="step-circle">1</div>
+                    <div class="step-label">Thông tin cá nhân</div>
+                </div>
+                <div class="step-node" id="stepNode2">
+                    <div class="step-circle">2</div>
+                    <div class="step-label">Thông tin bổ sung</div>
+                </div>
+            </div>
+
             <form id="registrationForm">
                 
                 <!-- BƯỚC 1 -->
-                <div id="step1">
-                    <h4 class="step-title">Bước 1: Thông tin liên hệ cơ bản</h4>
+                <div id="step1" class="step-content active">
                     
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Họ và tên <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="name" required placeholder="Nhập họ và tên của bạn">
-                    </div>
+                    <div class="grid-2-cols" style="align-items: start;">
+                        <!-- Cột Trái: Ảnh -->
+                        <div>
+                            <label class="form-label">Ảnh đại diện nhìn rõ mặt <span class="text-danger">*</span></label>
+                            <div class="avatar-upload-box" onclick="document.getElementById('avatarInput').click()">
+                                <div class="avatar-preview-circle">
+                                    <i class="bi bi-camera-fill" id="avatarPlaceholder"></i>
+                                    <img id="avatarFinalPreview" src="">
+                                </div>
+                                <div class="avatar-instruction">Tải ảnh lên</div>
+                                <div class="avatar-note">JPG, PNG (Tối đa 2MB)</div>
+                            </div>
+                            <input type="file" id="avatarInput" accept="image/*" capture="user" style="display: none;">
+                        </div>
 
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Số điện thoại (Có Zalo) <span class="text-danger">*</span></label>
-                        <input type="tel" class="form-control" id="phone" required placeholder="Ví dụ: 0987500533">
-                        <div class="note-text mt-1">
-                            <i>* Nếu Zalo của bạn không cho phép tìm kiếm vui lòng chủ động kết bạn với Pride Home qua số 0987.500.533</i>
+                        <!-- Cột Phải: Thông tin -->
+                        <div>
+                            <div class="mb-3">
+                                <label class="form-label">Họ và tên <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="name" placeholder="Nhập họ và tên của bạn">
+                            </div>
+                            
+                            <div>
+                                <label class="form-label">Số điện thoại (Sử dụng Zalo) <span class="text-danger">*</span></label>
+                                <input type="tel" class="form-control" id="phone" placeholder="Ví dụ: 0987500533">
+                            </div>
                         </div>
                     </div>
 
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Hình ảnh đại diện <span class="text-danger">*</span></label>
-                        <div class="note-text">Hỗ trợ chụp ảnh trực tiếp trên điện thoại hoặc tải ảnh lên. Dung lượng tối đa 2MB.</div>
-                        <input class="form-control mt-2" type="file" id="avatar" accept="image/*" capture="user" required>
-                        <div class="avatar-preview mt-2" id="avatarPreviewContainer">
-                            <span class="text-muted" style="font-size:12px;">Ảnh xem trước</span>
-                        </div>
+                    <div class="zalo-alert">
+                        <i class="bi bi-info-circle-fill"></i>
+                        <p><strong>Lưu ý:</strong> Nếu Zalo của bạn không cho phép tìm kiếm, vui lòng chủ động kết bạn với số điện thoại <strong>0987.500.533</strong> để được hỗ trợ.</p>
                     </div>
 
-                    <div class="d-flex justify-content-end mt-4">
-                        <button type="button" class="btn btn-primary px-4" onclick="nextStep()">Tiếp tục ➔</button>
-                    </div>
+                    <button type="button" class="btn-modern mt-4" onclick="nextStep()">
+                        Tiếp tục <i class="bi bi-arrow-right"></i>
+                    </button>
+                    <a href="javascript:void(0)" onclick="registerLater()" class="link-later">Tôi sẽ đăng ký sau</a>
                 </div>
 
                 <!-- BƯỚC 2 -->
-                <div id="step2">
-                    <h4 class="step-title">Bước 2: Thông tin bổ sung</h4>
+                <div id="step2" class="step-content">
                     
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Tỉnh/thành đang sống hiện tại <span class="text-danger">*</span></label>
-                        <select class="form-select" id="province" required>
-                            <option value="">-- Chọn tỉnh/thành phố --</option>
-                            <!-- Tỉnh thành sẽ được load bằng JS -->
-                        </select>
+                    <div class="grid-2-cols mb-4">
+                        <div>
+                            <label class="form-label">Tỉnh/thành hiện tại <span class="text-danger">*</span></label>
+                            <select class="form-select" id="province"></select>
+                        </div>
+                        <div>
+                            <label class="form-label">Năm sinh <span class="text-danger">*</span></label>
+                            <select class="form-select" id="birthYear"></select>
+                        </div>
                     </div>
 
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Năm sinh <span class="text-danger">*</span></label>
-                        <select class="form-select" id="birthYear" required>
-                            <option value="">-- Chọn năm sinh --</option>
-                            <!-- Năm sinh load bằng JS -->
-                        </select>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Bạn biết đến Pride Home qua đâu? <span class="text-danger">*</span></label>
-                        <select class="form-select" id="source" required>
-                            <option value="">-- Chọn nguồn --</option>
+                    <div class="mb-4">
+                        <label class="form-label">Bạn biết đến Pride Home qua đâu? <span class="text-danger">*</span></label>
+                        <select class="form-select" id="source">
+                            <option value="" disabled selected>-- Vui lòng chọn --</option>
                             <option value="Tiktok">Tiktok</option>
                             <option value="Facebook">Facebook</option>
                             <option value="YouTube">YouTube</option>
@@ -93,172 +386,204 @@
                         </select>
                     </div>
 
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Mong muốn của bản thân khi tham gia cộng đồng <span class="text-danger">*</span></label>
-                        <textarea class="form-control" id="desire" rows="3" required placeholder="Chia sẻ mong muốn của bạn..."></textarea>
+                    <div class="mb-5">
+                        <label class="form-label">Mong muốn khi tham gia <span class="text-danger">*</span></label>
+                        <textarea class="form-control" id="desire" rows="4" placeholder="Hãy chia sẻ lý do bạn muốn tham gia cộng đồng..."></textarea>
                     </div>
 
-                    <div class="d-flex justify-content-between mt-4">
-                        <button type="button" class="btn btn-outline-secondary" onclick="prevStep()">🡠 Quay lại</button>
-                        <div>
-                            <button type="button" class="btn btn-secondary me-2" onclick="registerLater()">Tôi sẽ đăng ký sau</button>
-                            <button type="submit" class="btn btn-success px-4" id="btnSubmit">Hoàn thành ✔</button>
-                        </div>
+                    <div class="grid-2-cols" style="grid-template-columns: 1fr 2fr;">
+                        <button type="button" class="btn-modern-light" onclick="prevStep()">
+                            <i class="bi bi-arrow-left"></i> Quay lại
+                        </button>
+                        <button type="submit" class="btn-modern">
+                            Hoàn tất đăng ký <i class="bi bi-check-lg"></i>
+                        </button>
                     </div>
-                    <div class="text-center mt-2 loader" id="submitLoader"></div>
                 </div>
 
             </form>
         </div>
 
-        <!-- Khu vực thông báo -->
-        <div class="form-container text-center" id="message-box">
-            <h4 class="text-primary mb-3" id="msg-title">Thông báo</h4>
-            <p id="msg-content" style="font-size: 1.1rem; line-height: 1.6;"></p>
+        <!-- Màn hình Thông báo -->
+        <div class="modern-card" id="message-box">
+            <div id="icon-success" style="display: none;">
+                <div class="msg-icon success"><i class="bi bi-check2"></i></div>
+            </div>
+            <div id="icon-later" style="display: none;">
+                <div class="msg-icon info"><i class="bi bi-emoji-smile"></i></div>
+            </div>
+            
+            <h2 class="fw-bold mb-3" id="msg-title" style="color: var(--text-dark);"></h2>
+            <div id="msg-content" style="font-size: 1.05rem; color: var(--text-muted); line-height: 1.6;"></div>
         </div>
     </div>
 
     <div class="footer">
-        Trang đăng ký thành viên thuộc <a href="https://pridehome.vn" target="_blank" class="text-decoration-none fw-bold">Cộng đồng Pride Home Việt Nam</a>.
+        Bản quyền thuộc <a href="https://pridehome.vn" target="_blank">Cộng đồng Pride Home Việt Nam</a>
     </div>
 
+    <!-- Modal Cắt Ảnh -->
+    <div class="modal fade" id="cropModal" tabindex="-1" data-bs-backdrop="static">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius: 20px; border: none; overflow: hidden;">
+          <div class="modal-header border-0 pb-0 pt-4 px-4">
+            <h5 class="modal-title fw-bold">Chỉnh sửa ảnh</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body p-4 bg-light d-flex justify-content-center" style="max-height: 60vh;">
+            <img id="imageToCrop" src="" style="max-width: 100%; display: block; border-radius: 8px;">
+          </div>
+          <div class="modal-footer border-0 pb-4 px-4 pt-0">
+            <button type="button" class="btn-modern-light" style="width: auto; padding: 12px 24px;" data-bs-dismiss="modal">Hủy</button>
+            <button type="button" class="btn-modern" style="width: auto; padding: 12px 24px;" id="btnCrop">Cắt & Áp dụng</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.1/dist/sweetalert2.all.min.js"></script>
+    
     <script>
-        // Danh sách 63 tỉnh thành Việt Nam (trước sáp nhập/hiện tại)
-        const provinces = [
-            "Hà Nội", "Hồ Chí Minh", "Đà Nẵng", "Hải Phòng", "Cần Thơ", "An Giang", "Bà Rịa - Vũng Tàu", "Bắc Giang", "Bắc Kạn", "Bạc Liêu", "Bắc Ninh", "Bến Tre", "Bình Định", "Bình Dương", "Bình Phước", "Bình Thuận", "Cà Mau", "Cao Bằng", "Đắk Lắk", "Đắk Nông", "Điện Biên", "Đồng Nai", "Đồng Tháp", "Gia Lai", "Hà Giang", "Hà Nam", "Hà Tĩnh", "Hải Dương", "Hậu Giang", "Hòa Bình", "Hưng Yên", "Khánh Hòa", "Kiên Giang", "Kon Tum", "Lai Châu", "Lâm Đồng", "Lạng Sơn", "Lào Cai", "Long An", "Nam Định", "Nghệ An", "Ninh Bình", "Ninh Thuận", "Phú Thọ", "Phú Yên", "Quảng Bình", "Quảng Nam", "Quảng Ngãi", "Quảng Ninh", "Quảng Trị", "Sóc Trăng", "Sơn La", "Tây Ninh", "Thái Bình", "Thái Nguyên", "Thanh Hóa", "Thừa Thiên Huế", "Tiền Giang", "Trà Vinh", "Tuyên Quang", "Vĩnh Long", "Vĩnh Phúc", "Yên Bái"
-        ];
+        // Tắt Loading ban đầu
+        window.addEventListener('load', function() {
+            setTimeout(() => { document.getElementById('pageLoader').classList.add('hidden'); }, 300);
+        });
 
-        // Biến lưu trữ file ảnh base64
-        let base64ImageString = "";
-        let imageMimeType = "";
-        let imageName = "";
+        // SweetAlert2 Light Mode
+        const Toast = Swal.mixin({
+            toast: true, position: "top-end", showConfirmButton: false, timer: 3000,
+            timerProgressBar: true, background: '#ffffff', color: '#0f172a',
+            customClass: { popup: 'shadow-lg border' },
+            didOpen: (toast) => { toast.onmouseenter = Swal.stopTimer; toast.onmouseleave = Swal.resumeTimer; }
+        });
 
-        // Khởi tạo dữ liệu Dropdown
-        document.addEventListener("DOMContentLoaded", function() {
-            // Tỉnh thành
+        const provinces = ["Hà Nội", "Hồ Chí Minh", "Đà Nẵng", "Hải Phòng", "Cần Thơ", "An Giang", "Bà Rịa - Vũng Tàu", "Bắc Giang", "Bắc Kạn", "Bạc Liêu", "Bắc Ninh", "Bến Tre", "Bình Định", "Bình Dương", "Bình Phước", "Bình Thuận", "Cà Mau", "Cao Bằng", "Đắk Lắk", "Đắk Nông", "Điện Biên", "Đồng Nai", "Đồng Tháp", "Gia Lai", "Hà Giang", "Hà Nam", "Hà Tĩnh", "Hải Dương", "Hậu Giang", "Hòa Bình", "Hưng Yên", "Khánh Hòa", "Kiên Giang", "Kon Tum", "Lai Châu", "Lâm Đồng", "Lạng Sơn", "Lào Cai", "Long An", "Nam Định", "Nghệ An", "Ninh Bình", "Ninh Thuận", "Phú Thọ", "Phú Yên", "Quảng Bình", "Quảng Nam", "Quảng Ngãi", "Quảng Ninh", "Quảng Trị", "Sóc Trăng", "Sơn La", "Tây Ninh", "Thái Bình", "Thái Nguyên", "Thanh Hóa", "Thừa Thiên Huế", "Tiền Giang", "Trà Vinh", "Tuyên Quang", "Vĩnh Long", "Vĩnh Phúc", "Yên Bái"];
+
+        document.addEventListener("DOMContentLoaded", () => {
             const provinceSelect = document.getElementById('province');
-            provinces.sort().forEach(p => {
-                let opt = document.createElement('option');
-                opt.value = p; opt.innerHTML = p;
-                provinceSelect.appendChild(opt);
-            });
+            provinceSelect.add(new Option("-- Chọn tỉnh/thành --", "", true, true));
+            provinces.sort().forEach(p => provinceSelect.add(new Option(p, p)));
+            provinceSelect.options[0].disabled = true;
 
-            // Năm sinh (Từ 1960 đến năm hiện tại - 16)
-            const currentYear = new Date().getFullYear();
             const yearSelect = document.getElementById('birthYear');
-            for (let y = currentYear - 16; y >= 1960; y--) {
-                let opt = document.createElement('option');
-                opt.value = y; opt.innerHTML = y;
-                yearSelect.appendChild(opt);
+            yearSelect.add(new Option("-- Chọn năm sinh --", "", true, true));
+            yearSelect.options[0].disabled = true;
+            for (let y = new Date().getFullYear() - 16; y >= 1960; y--) {
+                yearSelect.add(new Option(y, y));
             }
         });
 
-        // Xử lý xem trước và chuyển đổi ảnh sang Base64
-        document.getElementById('avatar').addEventListener('change', function(e) {
+        // Cropper Logic
+        let cropper, avatarBase64 = "", imageMimeType = "image/jpeg";
+        const cropModal = new bootstrap.Modal(document.getElementById('cropModal'));
+        const imageToCrop = document.getElementById('imageToCrop');
+
+        document.getElementById('avatarInput').addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (!file) return;
-
-            // Kiểm tra dung lượng (Max 2MB)
             if (file.size > 2 * 1024 * 1024) {
-                alert("Dung lượng ảnh vượt quá 2MB. Vui lòng chọn ảnh khác.");
-                this.value = ""; 
-                document.getElementById('avatarPreviewContainer').innerHTML = '<span class="text-muted" style="font-size:12px;">Ảnh xem trước</span>';
-                return;
+                Toast.fire({ icon: "error", title: "Dung lượng ảnh vượt quá 2MB!" });
+                this.value = ""; return;
             }
-
+            imageMimeType = file.type;
             const reader = new FileReader();
-            reader.onload = function(event) {
-                // Hiển thị Preview
-                document.getElementById('avatarPreviewContainer').innerHTML = `<img src="${event.target.result}" style="width:100%; height:100%; object-fit:cover;">`;
-                
-                // Lưu chuỗi base64 để gửi đi (bỏ phần data:image/xxx;base64,)
-                const base64String = event.target.result.split(',')[1];
-                base64ImageString = base64String;
-                imageMimeType = file.type;
-                imageName = file.name;
+            reader.onload = (event) => {
+                imageToCrop.src = event.target.result;
+                cropModal.show();
             };
             reader.readAsDataURL(file);
+            this.value = ""; 
         });
 
-        // Điều hướng form
+        document.getElementById('cropModal').addEventListener('shown.bs.modal', () => {
+            if (cropper) cropper.destroy();
+            cropper = new Cropper(imageToCrop, { aspectRatio: 1, viewMode: 1, autoCropArea: 1, background: false });
+        });
+
+        document.getElementById('btnCrop').addEventListener('click', () => {
+            if (!cropper) return;
+            const canvas = cropper.getCroppedCanvas({ width: 400, height: 400, fillColor: '#fff' });
+            const croppedImageURL = canvas.toDataURL(imageMimeType);
+            
+            document.getElementById('avatarPlaceholder').style.display = 'none';
+            const finalPreview = document.getElementById('avatarFinalPreview');
+            finalPreview.src = croppedImageURL;
+            finalPreview.style.display = 'block';
+            document.querySelector('.avatar-preview-circle').style.border = 'none';
+
+            avatarBase64 = croppedImageURL.split(',')[1];
+            cropModal.hide();
+        });
+
         function nextStep() {
             const name = document.getElementById('name').value.trim();
             const phone = document.getElementById('phone').value.trim();
-            const avatar = document.getElementById('avatar').files.length;
 
-            if (!name) { alert("Vui lòng nhập Họ và tên"); return; }
-            if (!phone) { alert("Vui lòng nhập Số điện thoại"); return; }
-            
-            // Regex kiểm tra số điện thoại Việt Nam hợp lệ (10 số, bắt đầu bằng 0 hoặc +84)
-            const phoneRegex = /^(0|\+84)[3|5|7|8|9][0-9]{8}$/;
-            if (!phoneRegex.test(phone)) {
-                alert("Số điện thoại không hợp lệ. Vui lòng kiểm tra lại.");
-                return;
-            }
-            if (avatar === 0) { alert("Vui lòng chọn hoặc chụp ảnh đại diện"); return; }
+            if (!avatarBase64) return Toast.fire({ icon: "warning", title: "Vui lòng cập nhật ảnh đại diện" });
+            if (!name) return Toast.fire({ icon: "warning", title: "Vui lòng nhập Họ và tên" });
+            if (!phone) return Toast.fire({ icon: "warning", title: "Vui lòng nhập Số điện thoại" });
+            if (!/^(0|\+84)[3|5|7|8|9][0-9]{8}$/.test(phone)) return Toast.fire({ icon: "error", title: "Số điện thoại chưa hợp lệ" });
 
-            document.getElementById('step1').style.display = 'none';
-            document.getElementById('step2').style.display = 'block';
+            document.getElementById('step1').classList.remove('active');
+            document.getElementById('step2').classList.add('active');
+            document.getElementById('stepNode2').classList.add('active');
         }
 
         function prevStep() {
-            document.getElementById('step2').style.display = 'none';
-            document.getElementById('step1').style.display = 'block';
+            document.getElementById('step2').classList.remove('active');
+            document.getElementById('step1').classList.add('active');
+            document.getElementById('stepNode2').classList.remove('active');
         }
 
         function registerLater() {
             document.getElementById('main-form').style.display = 'none';
-            document.getElementById('message-box').style.display = 'block';
-            document.getElementById('msg-title').innerText = "Hẹn gặp lại!";
-            document.getElementById('msg-content').innerHTML = "Pride Home mong chờ bạn quay lại nhé! Bạn có thể tìm hiểu thêm về cộng đồng tại website <a href='https://pridehome.vn' target='_blank'>pridehome.vn</a>.<br>Nếu cần hỗ trợ vui lòng liên hệ <b>0987.500.533</b>.";
+            const msgBox = document.getElementById('message-box');
+            msgBox.style.display = 'block';
+            document.getElementById('icon-later').style.display = 'block';
+            document.getElementById('msg-title').innerText = "Hẹn gặp lại bạn!";
+            document.getElementById('msg-content').innerHTML = "Pride Home luôn chào đón bạn quay lại.<br>Truy cập <a href='https://pridehome.vn' target='_blank' style='color:var(--primary); font-weight:600;'>pridehome.vn</a> để tìm hiểu thêm về cộng đồng.<br><br>Hotline hỗ trợ: <b>0987.500.533</b>.";
         }
 
-        // Xử lý gửi Form
         document.getElementById('registrationForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
-            // ⚠️ ĐIỀN URL WEB APP CỦA BẠN VÀO ĐÂY SAU KHI DEPLOY GOOGLE APPS SCRIPT
+            if(!document.getElementById('province').value) return Toast.fire({ icon: "warning", title: "Vui lòng chọn Tỉnh/Thành" });
+            if(!document.getElementById('birthYear').value) return Toast.fire({ icon: "warning", title: "Vui lòng chọn Năm sinh" });
+            if(!document.getElementById('source').value) return Toast.fire({ icon: "warning", title: "Vui lòng chọn Nguồn giới thiệu" });
+            
+            // ⚠️ THAY BẰNG URL WEB APP CỦA BẠN ⚠️
             const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx9r9kVPjl0XmCtVwmoTbbfEp_2Pn0bHpf-C4vbxI1TCrQTVublu7Gq2ndScx5bD13l8g/exec"; 
 
-            const btnSubmit = document.getElementById('btnSubmit');
-            const loader = document.getElementById('submitLoader');
-            
-            // Disable button, hiện loading
-            btnSubmit.disabled = true;
-            loader.style.display = 'block';
+            const overlay = document.getElementById('submitLoader');
+            overlay.style.display = 'flex';
 
             const payload = {
-                name: document.getElementById('name').value,
-                phone: document.getElementById('phone').value,
-                province: document.getElementById('province').value,
-                birthYear: document.getElementById('birthYear').value,
-                source: document.getElementById('source').value,
-                desire: document.getElementById('desire').value,
-                avatarBase64: base64ImageString,
-                avatarMimeType: imageMimeType,
-                avatarName: imageName
+                name: document.getElementById('name').value, phone: document.getElementById('phone').value,
+                province: document.getElementById('province').value, birthYear: document.getElementById('birthYear').value,
+                source: document.getElementById('source').value, desire: document.getElementById('desire').value,
+                avatarBase64: avatarBase64, avatarMimeType: imageMimeType, avatarName: "avatar_" + Date.now() + ".jpg"
             };
 
             fetch(SCRIPT_URL, {
-                method: "POST",
-                mode: "no-cors", // Bắt buộc dùng no-cors đối với Google Web App
-                headers: {
-                    "Content-Type": "text/plain;charset=utf-8",
-                },
+                method: "POST", mode: "no-cors",
+                headers: { "Content-Type": "text/plain;charset=utf-8" },
                 body: JSON.stringify(payload)
             })
-            .then(response => {
-                // Do chế độ no-cors không đọc được response chi tiết, ta mặc định là thành công khi fetch xong không lỗi
+            .then(() => {
+                overlay.style.display = 'none';
                 document.getElementById('main-form').style.display = 'none';
-                document.getElementById('message-box').style.display = 'block';
+                const msgBox = document.getElementById('message-box');
+                msgBox.style.display = 'block';
+                document.getElementById('icon-success').style.display = 'block';
                 document.getElementById('msg-title').innerText = "Đăng ký thành công!";
-                document.getElementById('msg-content').innerHTML = "Đăng ký đã được gửi và đang chờ phê duyệt, trong thời gian này bạn hãy gửi yêu cầu tham gia cộng đồng zalo <a href='https://zalo.me/g/hsnnqg245' target='_blank'>https://zalo.me/g/hsnnqg245</a>.<br>Bạn có thể tìm hiểu thêm các hoạt động của cộng đồng tại website <a href='https://pridehome.vn' target='_blank'>pridehome.vn</a>.<br>Nếu cần hỗ trợ vui lòng liên hệ <b>0987.500.533</b>.";
+                document.getElementById('msg-content').innerHTML = "Tuyệt vời! Thông tin của bạn đã được tiếp nhận và đang chờ phê duyệt.<br><br>Vui lòng gửi yêu cầu tham gia cộng đồng Zalo qua liên kết dưới đây:<br><br><a href='https://zalo.me/g/hsnnqg245' target='_blank' class='btn-modern' style='display:inline-flex; width:auto; text-decoration:none;'>Tham gia nhóm Zalo</a><br><br>Website: <a href='https://pridehome.vn' target='_blank' style='color:var(--primary); font-weight:600;'>pridehome.vn</a> | Hỗ trợ: <b>0987.500.533</b>";
             })
-            .catch(error => {
-                alert("Đã xảy ra lỗi trong quá trình gửi. Vui lòng thử lại sau!");
-                btnSubmit.disabled = false;
-                loader.style.display = 'none';
-                console.error("Error!", error.message);
+            .catch(err => {
+                overlay.style.display = 'none';
+                Swal.fire({ icon: 'error', title: 'Lỗi kết nối', text: 'Vui lòng kiểm tra lại đường truyền internet và thử lại!', confirmButtonColor: '#4f46e5' });
             });
         });
     </script>
