@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cổng Đăng Ký Thành Viên - Pride Home</title>
+    <!-- Sử dụng Bootstrap cho giao diện chuyên nghiệp -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f4f6f9; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .header { background-color: #0b5ed7; color: white; padding: 20px 0; text-align: center; margin-bottom: 30px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .form-container { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); max-width: 700px; margin: 0 auto 50px auto; }
+        .step-title { color: #0b5ed7; border-bottom: 2px solid #0b5ed7; padding-bottom: 10px; margin-bottom: 20px; font-weight: 600; }
+        .note-text { font-size: 0.85rem; color: #6c757d; }
+        .footer { text-align: center; padding: 20px; font-size: 0.9rem; color: #555; background: #e9ecef; margin-top: auto; }
+        #step2, #message-box { display: none; }
+        .avatar-preview { width: 150px; height: 150px; border-radius: 50%; object-fit: cover; border: 2px dashed #ccc; display: flex; align-items: center; justify-content: center; overflow: hidden; margin-top: 10px; }
+        .loader { display: none; border: 4px solid #f3f3f3; border-top: 4px solid #0b5ed7; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; margin: 0 auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body class="d-flex flex-column min-vh-100">
+
+    <div class="header">
+        <h2>HỆ THỐNG ĐĂNG KÝ THÀNH VIÊN</h2>
+        <p class="mb-0">Cộng đồng Pride Home Việt Nam</p>
+    </div>
+
+    <div class="container flex-grow-1">
+        <div class="form-container" id="main-form">
+            <form id="registrationForm">
+                
+                <!-- BƯỚC 1 -->
+                <div id="step1">
+                    <h4 class="step-title">Bước 1: Thông tin liên hệ cơ bản</h4>
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Họ và tên <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="name" required placeholder="Nhập họ và tên của bạn">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Số điện thoại (Có Zalo) <span class="text-danger">*</span></label>
+                        <input type="tel" class="form-control" id="phone" required placeholder="Ví dụ: 0987500533">
+                        <div class="note-text mt-1">
+                            <i>* Nếu Zalo của bạn không cho phép tìm kiếm vui lòng chủ động kết bạn với Pride Home qua số 0987.500.533</i>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Hình ảnh đại diện <span class="text-danger">*</span></label>
+                        <div class="note-text">Hỗ trợ chụp ảnh trực tiếp trên điện thoại hoặc tải ảnh lên. Dung lượng tối đa 2MB.</div>
+                        <input class="form-control mt-2" type="file" id="avatar" accept="image/*" capture="user" required>
+                        <div class="avatar-preview mt-2" id="avatarPreviewContainer">
+                            <span class="text-muted" style="font-size:12px;">Ảnh xem trước</span>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end mt-4">
+                        <button type="button" class="btn btn-primary px-4" onclick="nextStep()">Tiếp tục ➔</button>
+                    </div>
+                </div>
+
+                <!-- BƯỚC 2 -->
+                <div id="step2">
+                    <h4 class="step-title">Bước 2: Thông tin bổ sung</h4>
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Tỉnh/thành đang sống hiện tại <span class="text-danger">*</span></label>
+                        <select class="form-select" id="province" required>
+                            <option value="">-- Chọn tỉnh/thành phố --</option>
+                            <!-- Tỉnh thành sẽ được load bằng JS -->
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Năm sinh <span class="text-danger">*</span></label>
+                        <select class="form-select" id="birthYear" required>
+                            <option value="">-- Chọn năm sinh --</option>
+                            <!-- Năm sinh load bằng JS -->
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Bạn biết đến Pride Home qua đâu? <span class="text-danger">*</span></label>
+                        <select class="form-select" id="source" required>
+                            <option value="">-- Chọn nguồn --</option>
+                            <option value="Tiktok">Tiktok</option>
+                            <option value="Facebook">Facebook</option>
+                            <option value="YouTube">YouTube</option>
+                            <option value="Bạn bè giới thiệu">Bạn bè giới thiệu</option>
+                            <option value="Khác">Khác</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Mong muốn của bản thân khi tham gia cộng đồng <span class="text-danger">*</span></label>
+                        <textarea class="form-control" id="desire" rows="3" required placeholder="Chia sẻ mong muốn của bạn..."></textarea>
+                    </div>
+
+                    <div class="d-flex justify-content-between mt-4">
+                        <button type="button" class="btn btn-outline-secondary" onclick="prevStep()">🡠 Quay lại</button>
+                        <div>
+                            <button type="button" class="btn btn-secondary me-2" onclick="registerLater()">Tôi sẽ đăng ký sau</button>
+                            <button type="submit" class="btn btn-success px-4" id="btnSubmit">Hoàn thành ✔</button>
+                        </div>
+                    </div>
+                    <div class="text-center mt-2 loader" id="submitLoader"></div>
+                </div>
+
+            </form>
+        </div>
+
+        <!-- Khu vực thông báo -->
+        <div class="form-container text-center" id="message-box">
+            <h4 class="text-primary mb-3" id="msg-title">Thông báo</h4>
+            <p id="msg-content" style="font-size: 1.1rem; line-height: 1.6;"></p>
+        </div>
+    </div>
+
+    <div class="footer">
+        Trang đăng ký thành viên thuộc <a href="https://pridehome.vn" target="_blank" class="text-decoration-none fw-bold">Cộng đồng Pride Home Việt Nam</a>.
+    </div>
+
+    <script>
+        // Danh sách 63 tỉnh thành Việt Nam (trước sáp nhập/hiện tại)
+        const provinces = [
+            "Hà Nội", "Hồ Chí Minh", "Đà Nẵng", "Hải Phòng", "Cần Thơ", "An Giang", "Bà Rịa - Vũng Tàu", "Bắc Giang", "Bắc Kạn", "Bạc Liêu", "Bắc Ninh", "Bến Tre", "Bình Định", "Bình Dương", "Bình Phước", "Bình Thuận", "Cà Mau", "Cao Bằng", "Đắk Lắk", "Đắk Nông", "Điện Biên", "Đồng Nai", "Đồng Tháp", "Gia Lai", "Hà Giang", "Hà Nam", "Hà Tĩnh", "Hải Dương", "Hậu Giang", "Hòa Bình", "Hưng Yên", "Khánh Hòa", "Kiên Giang", "Kon Tum", "Lai Châu", "Lâm Đồng", "Lạng Sơn", "Lào Cai", "Long An", "Nam Định", "Nghệ An", "Ninh Bình", "Ninh Thuận", "Phú Thọ", "Phú Yên", "Quảng Bình", "Quảng Nam", "Quảng Ngãi", "Quảng Ninh", "Quảng Trị", "Sóc Trăng", "Sơn La", "Tây Ninh", "Thái Bình", "Thái Nguyên", "Thanh Hóa", "Thừa Thiên Huế", "Tiền Giang", "Trà Vinh", "Tuyên Quang", "Vĩnh Long", "Vĩnh Phúc", "Yên Bái"
+        ];
+
+        // Biến lưu trữ file ảnh base64
+        let base64ImageString = "";
+        let imageMimeType = "";
+        let imageName = "";
+
+        // Khởi tạo dữ liệu Dropdown
+        document.addEventListener("DOMContentLoaded", function() {
+            // Tỉnh thành
+            const provinceSelect = document.getElementById('province');
+            provinces.sort().forEach(p => {
+                let opt = document.createElement('option');
+                opt.value = p; opt.innerHTML = p;
+                provinceSelect.appendChild(opt);
+            });
+
+            // Năm sinh (Từ 1960 đến năm hiện tại - 16)
+            const currentYear = new Date().getFullYear();
+            const yearSelect = document.getElementById('birthYear');
+            for (let y = currentYear - 16; y >= 1960; y--) {
+                let opt = document.createElement('option');
+                opt.value = y; opt.innerHTML = y;
+                yearSelect.appendChild(opt);
+            }
+        });
+
+        // Xử lý xem trước và chuyển đổi ảnh sang Base64
+        document.getElementById('avatar').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            // Kiểm tra dung lượng (Max 2MB)
+            if (file.size > 2 * 1024 * 1024) {
+                alert("Dung lượng ảnh vượt quá 2MB. Vui lòng chọn ảnh khác.");
+                this.value = ""; 
+                document.getElementById('avatarPreviewContainer').innerHTML = '<span class="text-muted" style="font-size:12px;">Ảnh xem trước</span>';
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                // Hiển thị Preview
+                document.getElementById('avatarPreviewContainer').innerHTML = `<img src="${event.target.result}" style="width:100%; height:100%; object-fit:cover;">`;
+                
+                // Lưu chuỗi base64 để gửi đi (bỏ phần data:image/xxx;base64,)
+                const base64String = event.target.result.split(',')[1];
+                base64ImageString = base64String;
+                imageMimeType = file.type;
+                imageName = file.name;
+            };
+            reader.readAsDataURL(file);
+        });
+
+        // Điều hướng form
+        function nextStep() {
+            const name = document.getElementById('name').value.trim();
+            const phone = document.getElementById('phone').value.trim();
+            const avatar = document.getElementById('avatar').files.length;
+
+            if (!name) { alert("Vui lòng nhập Họ và tên"); return; }
+            if (!phone) { alert("Vui lòng nhập Số điện thoại"); return; }
+            
+            // Regex kiểm tra số điện thoại Việt Nam hợp lệ (10 số, bắt đầu bằng 0 hoặc +84)
+            const phoneRegex = /^(0|\+84)[3|5|7|8|9][0-9]{8}$/;
+            if (!phoneRegex.test(phone)) {
+                alert("Số điện thoại không hợp lệ. Vui lòng kiểm tra lại.");
+                return;
+            }
+            if (avatar === 0) { alert("Vui lòng chọn hoặc chụp ảnh đại diện"); return; }
+
+            document.getElementById('step1').style.display = 'none';
+            document.getElementById('step2').style.display = 'block';
+        }
+
+        function prevStep() {
+            document.getElementById('step2').style.display = 'none';
+            document.getElementById('step1').style.display = 'block';
+        }
+
+        function registerLater() {
+            document.getElementById('main-form').style.display = 'none';
+            document.getElementById('message-box').style.display = 'block';
+            document.getElementById('msg-title').innerText = "Hẹn gặp lại!";
+            document.getElementById('msg-content').innerHTML = "Pride Home mong chờ bạn quay lại nhé! Bạn có thể tìm hiểu thêm về cộng đồng tại website <a href='https://pridehome.vn' target='_blank'>pridehome.vn</a>.<br>Nếu cần hỗ trợ vui lòng liên hệ <b>0987.500.533</b>.";
+        }
+
+        // Xử lý gửi Form
+        document.getElementById('registrationForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // ⚠️ ĐIỀN URL WEB APP CỦA BẠN VÀO ĐÂY SAU KHI DEPLOY GOOGLE APPS SCRIPT
+            const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx9r9kVPjl0XmCtVwmoTbbfEp_2Pn0bHpf-C4vbxI1TCrQTVublu7Gq2ndScx5bD13l8g/exec"; 
+
+            const btnSubmit = document.getElementById('btnSubmit');
+            const loader = document.getElementById('submitLoader');
+            
+            // Disable button, hiện loading
+            btnSubmit.disabled = true;
+            loader.style.display = 'block';
+
+            const payload = {
+                name: document.getElementById('name').value,
+                phone: document.getElementById('phone').value,
+                province: document.getElementById('province').value,
+                birthYear: document.getElementById('birthYear').value,
+                source: document.getElementById('source').value,
+                desire: document.getElementById('desire').value,
+                avatarBase64: base64ImageString,
+                avatarMimeType: imageMimeType,
+                avatarName: imageName
+            };
+
+            fetch(SCRIPT_URL, {
+                method: "POST",
+                mode: "no-cors", // Bắt buộc dùng no-cors đối với Google Web App
+                headers: {
+                    "Content-Type": "text/plain;charset=utf-8",
+                },
+                body: JSON.stringify(payload)
+            })
+            .then(response => {
+                // Do chế độ no-cors không đọc được response chi tiết, ta mặc định là thành công khi fetch xong không lỗi
+                document.getElementById('main-form').style.display = 'none';
+                document.getElementById('message-box').style.display = 'block';
+                document.getElementById('msg-title').innerText = "Đăng ký thành công!";
+                document.getElementById('msg-content').innerHTML = "Đăng ký đã được gửi và đang chờ phê duyệt, trong thời gian này bạn hãy gửi yêu cầu tham gia cộng đồng zalo <a href='https://zalo.me/g/hsnnqg245' target='_blank'>https://zalo.me/g/hsnnqg245</a>.<br>Bạn có thể tìm hiểu thêm các hoạt động của cộng đồng tại website <a href='https://pridehome.vn' target='_blank'>pridehome.vn</a>.<br>Nếu cần hỗ trợ vui lòng liên hệ <b>0987.500.533</b>.";
+            })
+            .catch(error => {
+                alert("Đã xảy ra lỗi trong quá trình gửi. Vui lòng thử lại sau!");
+                btnSubmit.disabled = false;
+                loader.style.display = 'none';
+                console.error("Error!", error.message);
+            });
+        });
+    </script>
+</body>
+</html>
