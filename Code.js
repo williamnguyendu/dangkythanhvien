@@ -24,9 +24,12 @@ function doPost(e) {
     // 2. Tạo Mã Thành Viên (12 ký tự ngẫu nhiên, số và chữ không trùng)
     const maThanhVien = generateUniqueId(12);
     
-    // 3. Tạo Mã Số Thành Viên (5 số cuối điện thoại)
+    // 3. Xử lý Số điện thoại & Mã Số Thành Viên (thêm dấu nháy đơn để giữ số 0 ở đầu)
     let soDienThoai = data.phone || '';
-    const maSoThanhVien = soDienThoai.length >= 5 ? soDienThoai.slice(-5) : soDienThoai;
+    const soDienThoaiLuuSheet = soDienThoai ? "'" + soDienThoai : ""; // Định dạng text cho SĐT
+    
+    let maSoThanhVienRaw = soDienThoai.length >= 5 ? soDienThoai.slice(-5) : soDienThoai;
+    const maSoThanhVienLuuSheet = maSoThanhVienRaw ? "'" + maSoThanhVienRaw : ""; // Định dạng text cho Mã SĐT
     
     // 4. Các thông tin khác
     const tenThanhVien = data.name || '';
@@ -45,7 +48,7 @@ function doPost(e) {
     // Thứ tự cột: MaThanhVien, MaSoThanhVien, TenThanhVien, BietDanh, HinhAnhDaiDien, NguonDangKy, MongMuon, TinhThanh, NamSinh, SoDienThoai, ThoiGianDangKy, GhiChu, TrangThai
     sheet.appendRow([
       maThanhVien,
-      maSoThanhVien,
+      maSoThanhVienLuuSheet, // Đã fix giữ số 0
       tenThanhVien,
       bietDanh,
       imageUrl,
@@ -53,7 +56,7 @@ function doPost(e) {
       mongMuon,
       tinhThanh,
       namSinh,
-      soDienThoai,
+      soDienThoaiLuuSheet,   // Đã fix giữ số 0
       thoiGianDangKy,
       ghiChu,
       trangThai
