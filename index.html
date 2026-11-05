@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cổng Đăng Ký Thành Viên - Pride Home</title>
+    <title>Cổng Đăng Ký - Pride Home</title>
     <!-- Google Fonts: Plus Jakarta Sans cho giao diện SaaS hiện đại, sáng sủa -->
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- Bootstrap 5 -->
@@ -196,7 +196,7 @@
         }
         .avatar-preview-circle i { font-size: 2.5rem; color: var(--secondary); }
         .avatar-preview-circle img { width: 100%; height: 100%; object-fit: cover; display: none; }
-        .avatar-instruction { font-weight: 600; color: var(--text-dark); margin-bottom: 5px; }
+        .avatar-instruction { font-weight: 600; color: var(--text-dark); margin-bottom: 5px; text-align: center; }
         .avatar-note { font-size: 0.85rem; color: var(--text-muted); }
 
         /* Inputs */
@@ -329,10 +329,11 @@
                                     <i class="bi bi-camera-fill" id="avatarPlaceholder"></i>
                                     <img id="avatarFinalPreview" src="">
                                 </div>
-                                <div class="avatar-instruction">Tải ảnh lên</div>
-                                <div class="avatar-note">JPG, PNG (Tối đa 2MB)</div>
+                                <div class="avatar-instruction">Tải ảnh lên hoặc Chụp ảnh mới</div>
+                                <div class="avatar-note">JPG, PNG (Tối đa 4MB)</div>
                             </div>
-                            <input type="file" id="avatarInput" accept="image/*" capture="user" style="display: none;">
+                            <!-- Bỏ thuộc tính capture="user" để cho phép chọn từ thư viện hoặc chụp ảnh mới trên di động -->
+                            <input type="file" id="avatarInput" accept="image/*" style="display: none;">
                         </div>
 
                         <!-- Cột Phải: Thông tin -->
@@ -484,8 +485,9 @@
         document.getElementById('avatarInput').addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (!file) return;
-            if (file.size > 2 * 1024 * 1024) {
-                Toast.fire({ icon: "error", title: "Dung lượng ảnh vượt quá 2MB!" });
+            // Tăng giới hạn dung lượng lên 4MB
+            if (file.size > 4 * 1024 * 1024) {
+                Toast.fire({ icon: "error", title: "Dung lượng ảnh vượt quá 4MB!" });
                 this.value = ""; return;
             }
             imageMimeType = file.type;
@@ -555,7 +557,7 @@
             if(!document.getElementById('source').value) return Toast.fire({ icon: "warning", title: "Vui lòng chọn Nguồn giới thiệu" });
             
             // ⚠️ THAY BẰNG URL WEB APP CỦA BẠN ⚠️
-            const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyYCK7QSTPI-shATCOp89nAWX1u9Hpy_JQijc1yiDwjfchm9Bf2-T05iJgQpn5p4U6x2w/exec"; 
+            const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwJvRKSINDmx7hdO8TGcRrsWJwxXkEMXk3k-vAM4LiNzvKy9HMsNGcXx9ruiWzNlAJ1Iw/exec"; 
 
             const overlay = document.getElementById('submitLoader');
             overlay.style.display = 'flex';
